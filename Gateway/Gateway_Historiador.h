@@ -1,7 +1,8 @@
 #ifndef GATEWAY_HISTORIADOR_INCLUDE
 #define GATEWAY_HISTORIADOR_INCLUDE
 
-#include <boost/interprocess/sync/interprocess_semaphore.hpp>
+using namespace std;
+using namespace boost::interprocess;
 
 struct position_t
 {
@@ -10,16 +11,6 @@ struct position_t
 	double latitude;
 	double longitude;
 	int speed;
-
-	template <typename Archive>
-	void serialize(Archive& ar, const unsigned int version)
-	{
-		ar & id;
-		ar & timestamp;
-		ar & latitude;
-		ar & longitude;
-		ar & speed;
-	}
 };
 
 struct shared_memory_buffer
@@ -30,8 +21,7 @@ struct shared_memory_buffer
 
 	// Semaforos para proteger e sincronizar o acesso a lista com o número
 	// de elementos na fila
-	boost::interprocess::interprocess_semaphore
-		mutex;
+	boost::interprocess::interprocess_semaphore mutex;
 
 	// Variável que controla número de elementos na lista
 	int numItems;

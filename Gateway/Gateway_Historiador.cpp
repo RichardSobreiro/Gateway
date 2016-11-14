@@ -3,12 +3,10 @@
 #include <chrono>
 // Bibliotecas Boost
 #include <boost/interprocess/ipc/message_queue.hpp>
+#include <boost/interprocess/sync/interprocess_semaphore.hpp>
 #include <boost/thread.hpp>
 // Bibliotecas do projeto
 #include "gateway_historiador.h"
-
-using namespace std;
-using namespace boost::interprocess;
 
 shared_memory_buffer* Gateway_Historiador_Comunicacao::criar_semaforo()
 {
@@ -23,9 +21,10 @@ shared_memory_buffer* Gateway_Historiador_Comunicacao::criar_semaforo()
 	// Cria a região de memória compartilhada entre o Gateway e o Historiador
 	// para emular semáforo de controle de acesso a lista
 	shared_memory_object shm
-	(create_only							      // Cria a região
-		, "MC_S_Gateway_Historiador"              // Nome da região
-		, read_write							  // Permissão de leitura e escrita
+	(
+		create_only,					// Cria a região
+		"MC_S_Gateway_Historiador",		// Nome da região
+		read_write			       		// Permissão de leitura e escrita
 	);
 
 	// Atribui o tamanho da região de memória compartilhada

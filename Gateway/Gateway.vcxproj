@@ -117,9 +117,11 @@
   <ItemGroup>
     <ClCompile Include="Gateway.cpp" />
     <ClCompile Include="Gateway_Historiador.cpp" />
+    <ClCompile Include="Gateway_Servidor.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Gateway_Historiador.h" />
+    <ClInclude Include="Gateway_Servidor.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

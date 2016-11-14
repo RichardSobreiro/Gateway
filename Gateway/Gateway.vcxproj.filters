@@ -21,9 +21,15 @@
     <ClCompile Include="Gateway_Historiador.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="Gateway_Servidor.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Gateway_Historiador.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Gateway_Servidor.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
