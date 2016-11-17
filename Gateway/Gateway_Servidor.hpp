@@ -1,5 +1,5 @@
-#ifndef GATEWAY_SERVIDOR_INCLUDE
-#define GATEWAY_SERVIDOR_INCLUDE
+#ifndef GATEWAY_SERVIDOR_HPP
+#define GATEWAY_SERVIDOR_HPP
 
 using namespace std;
 using namespace boost::interprocess;

@@ -1,5 +1,5 @@
-#ifndef GATEWAY_HISTORIADOR_INCLUDE
-#define GATEWAY_HISTORIADOR_INCLUDE
+#ifndef GATEWAY_HISTORIADOR_HPP
+#define GATEWAY_HISTORIADOR_HPP
 
 using namespace std;
 using namespace boost::interprocess;

@@ -2,7 +2,7 @@
 // Bibliotecas Boost
 #include <boost/thread.hpp>
 // Bibliotecas do projeto
-#include "gateway_historiador.h"
+#include "gateway_historiador.hpp"
 
 using namespace std;
 

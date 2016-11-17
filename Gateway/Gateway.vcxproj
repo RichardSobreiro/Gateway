@@ -118,10 +118,13 @@
     <ClCompile Include="Gateway.cpp" />
     <ClCompile Include="Gateway_Historiador.cpp" />
     <ClCompile Include="Gateway_Servidor.cpp" />
+    <ClCompile Include="Http_Testes.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="Gateway_Historiador.h" />
-    <ClInclude Include="Gateway_Servidor.h" />
+    <ClInclude Include="Cliente_Http.hpp" />
+    <ClInclude Include="Gateway_Historiador.hpp" />
+    <ClInclude Include="Gateway_Servidor.hpp" />
+    <ClInclude Include="Server_Http.hpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
