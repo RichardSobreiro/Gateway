@@ -20,41 +20,49 @@
 #define REGEX_NS std
 #endif
 
-namespace SimpleWeb {
+namespace SimpleWeb 
+{
 	template <class socket_type>
-	class ServerBase {
-	public:
-		virtual ~ServerBase() {}
-
-		class Response : public std::ostream {
-			friend class ServerBase<socket_type>;
-
-			boost::asio::streambuf streambuf;
-
-			std::shared_ptr<socket_type> socket;
-
-			Response(const std::shared_ptr<socket_type> &socket) : std::ostream(&streambuf), socket(socket) {}
-
+	class ServerBase 
+	{
 		public:
-			size_t size() {
-				return streambuf.size();
-			}
-		};
+			virtual ~ServerBase() {}
 
-		class Content : public std::istream {
+			class Response : public std::ostream 
+			{
+				friend class ServerBase<socket_type>;
+
+				boost::asio::streambuf streambuf;
+
+				std::shared_ptr<socket_type> socket;
+
+				Response(const std::shared_ptr<socket_type> &socket) : std::ostream(&streambuf), socket(socket) {}
+
+				public:
+					size_t size() 
+					{
+						return streambuf.size();
+					}
+			};
+
+		class Content : public std::istream 
+		{
 			friend class ServerBase<socket_type>;
-		public:
-			size_t size() {
-				return streambuf.size();
-			}
-			std::string string() {
-				std::stringstream ss;
-				ss << rdbuf();
-				return ss.str();
-			}
-		private:
-			boost::asio::streambuf &streambuf;
-			Content(boost::asio::streambuf &streambuf) : std::istream(&streambuf), streambuf(streambuf) {}
+			
+			public:
+				size_t size() 
+				{
+					return streambuf.size();
+				}
+				std::string string() 
+				{
+					std::stringstream ss;
+					ss << rdbuf();
+					return ss.str();
+				}
+			private:
+				boost::asio::streambuf &streambuf;
+				Content(boost::asio::streambuf &streambuf) : std::istream(&streambuf), streambuf(streambuf) {}
 		};
 
 		class Request {
