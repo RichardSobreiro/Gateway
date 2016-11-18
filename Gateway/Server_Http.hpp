@@ -11,7 +11,7 @@
 #include <iostream>
 #include <sstream>
 
-// Late 2017 TODO: remove the following checks and always use std::regex
+// Após 2017 a checagem abaixo deve ser removida (atualização do compilador)
 #ifdef USE_BOOST_REGEX
 #include <boost/regex.hpp>
 #define REGEX_NS boost
@@ -49,20 +49,20 @@ namespace SimpleWeb
 		{
 			friend class ServerBase<socket_type>;
 			
-			public:
-				size_t size() 
-				{
-					return streambuf.size();
-				}
-				std::string string() 
-				{
-					std::stringstream ss;
-					ss << rdbuf();
-					return ss.str();
-				}
-			private:
-				boost::asio::streambuf &streambuf;
-				Content(boost::asio::streambuf &streambuf) : std::istream(&streambuf), streambuf(streambuf) {}
+		public:
+			size_t size() 
+			{
+				return streambuf.size();
+			}
+			std::string string() 
+			{
+				std::stringstream ss;
+				ss << rdbuf();
+				return ss.str();
+			}
+		private:
+			boost::asio::streambuf &streambuf;
+			Content(boost::asio::streambuf &streambuf) : std::istream(&streambuf), streambuf(streambuf) {}
 		};
 
 		class Request {
@@ -71,7 +71,8 @@ namespace SimpleWeb
 			//Based on http://www.boost.org/doc/libs/1_60_0/doc/html/unordered/hash_equality.html
 			class iequal_to {
 			public:
-				bool operator()(const std::string &key1, const std::string &key2) const {
+				bool operator()(const std::string &key1, const std::string &key2) const 
+				{
 					return boost::algorithm::iequals(key1, key2);
 				}
 			};
@@ -102,48 +103,69 @@ namespace SimpleWeb
 			boost::asio::streambuf streambuf;
 		};
 
-		class Config {
+		class Config 
+		{
 			friend class ServerBase<socket_type>;
 
 			Config(unsigned short port, size_t num_threads) : num_threads(num_threads), port(port), reuse_address(true) {}
 			size_t num_threads;
 		public:
 			unsigned short port;
-			///IPv4 address in dotted decimal form or IPv6 address in hexadecimal notation.
-			///If empty, the address will be any address.
+			// IPv4: decimal
+			// IPv6: hexadecimal
 			std::string address;
-			///Set to false to avoid binding the socket to an address that is already in use.
+			
+			// Falso para evitar que o socket seja ligado a um endereço que já está em uso
 			bool reuse_address;
 		};
-		///Set before calling start().
+
+		// Setar antes de chamar start() no servidor
 		Config config;
 
 		std::unordered_map<std::string, std::unordered_map<std::string,
-			std::function<void(std::shared_ptr<typename ServerBase<socket_type>::Response>, std::shared_ptr<typename ServerBase<socket_type>::Request>)> > >  resource;
+			std::function<void(std::shared_ptr<typename ServerBase<socket_type>::Response>, 
+								std::shared_ptr<typename ServerBase<socket_type>::Request>)> > >  
+				resource;
 
 		std::unordered_map<std::string,
-			std::function<void(std::shared_ptr<typename ServerBase<socket_type>::Response>, std::shared_ptr<typename ServerBase<socket_type>::Request>)> > default_resource;
+			std::function<void(std::shared_ptr<typename ServerBase<socket_type>::Response>, 
+								std::shared_ptr<typename ServerBase<socket_type>::Request>)> > 
+			default_resource;
 
 		std::function<void(const std::exception&)> exception_handler;
 
 	private:
-		std::vector<std::pair<std::string, std::vector<std::pair<REGEX_NS::regex,
-			std::function<void(std::shared_ptr<typename ServerBase<socket_type>::Response>, std::shared_ptr<typename ServerBase<socket_type>::Request>)> > > > > opt_resource;
+		std::vector<std::pair<std::string, 
+					std::vector<std::pair<REGEX_NS::regex,
+					std::function<void( std::shared_ptr<typename ServerBase<socket_type>::Response>, 
+										std::shared_ptr<typename ServerBase<socket_type>::Request>)> 
+										> 
+								> 
+							> 
+						> 
+					opt_resource;
 
 	public:
-		void start() {
-			//Copy the resources to opt_resource for more efficient request processing
+		void start() 
+		{
+			// Copia os recursos para opt_resource para maior eficiência
+			// no processamento da requisição
 			opt_resource.clear();
+
 			for (auto& res : resource) {
-				for (auto& res_method : res.second) {
+				for (auto& res_method : res.second) 
+				{
 					auto it = opt_resource.end();
-					for (auto opt_it = opt_resource.begin(); opt_it != opt_resource.end(); opt_it++) {
-						if (res_method.first == opt_it->first) {
+					for (auto opt_it = opt_resource.begin(); opt_it != opt_resource.end(); opt_it++) 
+					{
+						if (res_method.first == opt_it->first) 
+						{
 							it = opt_it;
 							break;
 						}
 					}
-					if (it == opt_resource.end()) {
+					if (it == opt_resource.end()) 
+					{
 						opt_resource.emplace_back();
 						it = opt_resource.begin() + (opt_resource.size() - 1);
 						it->first = res_method.first;
@@ -159,13 +181,18 @@ namespace SimpleWeb
 				io_service->reset();
 
 			boost::asio::ip::tcp::endpoint endpoint;
+
 			if (config.address.size()>0)
-				endpoint = boost::asio::ip::tcp::endpoint(boost::asio::ip::address::from_string(config.address), config.port);
+				endpoint = 
+					boost::asio::ip::tcp::endpoint(boost::asio::ip::address::from_string(config.address), 
+													config.port);
 			else
 				endpoint = boost::asio::ip::tcp::endpoint(boost::asio::ip::tcp::v4(), config.port);
 
 			if (!acceptor)
-				acceptor = std::unique_ptr<boost::asio::ip::tcp::acceptor>(new boost::asio::ip::tcp::acceptor(*io_service));
+				acceptor = std::unique_ptr<boost::asio::ip::tcp::acceptor>
+									(new boost::asio::ip::tcp::acceptor(*io_service));
+
 			acceptor->open(endpoint.protocol());
 			acceptor->set_option(boost::asio::socket_base::reuse_address(config.reuse_address));
 			acceptor->bind(endpoint);
@@ -173,33 +200,39 @@ namespace SimpleWeb
 
 			accept();
 
-			//If num_threads>1, start m_io_service.run() in (num_threads-1) threads for thread-pooling
+			// Se o número de threads é maior que 1:
+			// m_io_service.run() com (num_threads-1) threads para o thread-pooling
 			threads.clear();
-			for (size_t c = 1; c<config.num_threads; c++) {
-				threads.emplace_back([this]() {
+			for (size_t c = 1; c < config.num_threads; c++) 
+			{
+				threads.emplace_back([this]() 
+				{
 					io_service->run();
 				});
 			}
 
-			//Main thread
+			// Thread principal
 			if (config.num_threads>0)
 				io_service->run();
 
-			//Wait for the rest of the threads, if any, to finish as well
-			for (auto& t : threads) {
+			// Aguarda por todas as threads antes de finalizar
+			for (auto& t : threads) 
+			{
 				t.join();
 			}
 		}
 
-		void stop() {
+		void stop() 
+		{
 			acceptor->close();
-			if (config.num_threads>0)
-				io_service->stop();
+			if (config.num_threads>0) io_service->stop();
 		}
 
-		///Use this function if you need to recursively send parts of a longer message
-		void send(const std::shared_ptr<Response> &response, const std::function<void(const boost::system::error_code&)>& callback = nullptr) const {
-			boost::asio::async_write(*response->socket, response->streambuf, [this, response, callback](const boost::system::error_code& ec, size_t /*bytes_transferred*/) {
+		// Função para enviar partes de uma grande mensagem recursivamente
+		void send(const std::shared_ptr<Response> &response, const std::function<void(const boost::system::error_code&)>& callback = nullptr) const 
+		{
+			boost::asio::async_write(*response->socket, response->streambuf, [this, response, callback](const boost::system::error_code& ec, size_t /*bytes transferidos*/) 
+			{
 				if (callback)
 					callback(ec);
 			});
@@ -418,7 +451,8 @@ namespace SimpleWeb
 	typedef boost::asio::ip::tcp::socket HTTP;
 
 	template<>
-	class Server<HTTP> : public ServerBase<HTTP> {
+	class Server<HTTP> : public ServerBase<HTTP> 
+	{
 	public:
 		Server(unsigned short port, size_t num_threads = 1, long timeout_request = 5, long timeout_content = 300) :
 			ServerBase<HTTP>::ServerBase(port, num_threads, timeout_request, timeout_content) {}
@@ -429,7 +463,8 @@ namespace SimpleWeb
 			//Shared_ptr is used to pass temporary objects to the asynchronous functions
 			std::shared_ptr<HTTP> socket(new HTTP(*io_service));
 
-			acceptor->async_accept(*socket, [this, socket](const boost::system::error_code& ec) {
+			acceptor->async_accept(*socket, [this, socket](const boost::system::error_code& ec) 
+			{
 				//Immediately start accepting a new connection (if io_service hasn't been stopped)
 				if (ec != boost::asio::error::operation_aborted)
 					accept();
