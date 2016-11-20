@@ -2,10 +2,10 @@
 // Bibliotecas Boost
 #include <boost/thread.hpp>
 // Bibliotecas do projeto
-#include "gateway_historiador.hpp"
+#include "Gateway_Historiador.hpp"
 
 using namespace std;
-
+/*
 int main()
 {
 	boost::thread thread_gateway_historiador{ thread_procedimento_gateway_historiador };
@@ -15,3 +15,4 @@ int main()
 	system("PAUSE");
 	return 0;
 }
+*/

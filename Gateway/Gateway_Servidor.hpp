@@ -1,6 +1,9 @@
 #ifndef GATEWAY_SERVIDOR_HPP
 #define GATEWAY_SERVIDOR_HPP
 
+#include <boost/interprocess/ipc/message_queue.hpp>
+#include <boost/interprocess/sync/interprocess_semaphore.hpp>
+
 using namespace std;
 using namespace boost::interprocess;
 
@@ -21,5 +24,5 @@ struct active_users_t
 
 void thread_procedimento_gateway_servidor();
 
-#endif // !GATEWAY_SERVIDOR_INCLUDE
+#endif // !GATEWAY_SERVIDOR_HPP
 

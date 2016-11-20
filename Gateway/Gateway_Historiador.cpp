@@ -6,7 +6,7 @@
 #include <boost/interprocess/sync/interprocess_semaphore.hpp>
 #include <boost/thread.hpp>
 // Bibliotecas do projeto
-#include "gateway_historiador.hpp"
+#include "Gateway_Historiador.hpp"
 
 shared_memory_buffer* Gateway_Historiador_Comunicacao::criar_semaforo()
 {
