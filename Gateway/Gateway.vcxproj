@@ -79,6 +79,7 @@
     </ClCompile>
     <Link>
       <AdditionalLibraryDirectories>C:\boost\boost_1_62_0\stage\lib;C:\boost\boost_1_62_0;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <SubSystem>Console</SubSystem>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
@@ -124,6 +125,7 @@
     <ClInclude Include="Gateway_Historiador.hpp" />
     <ClInclude Include="Gateway_Servidor.hpp" />
     <ClInclude Include="Server_Http.hpp" />
+    <ClInclude Include="util.hpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

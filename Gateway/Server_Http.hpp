@@ -503,13 +503,14 @@ namespace SimpleWeb
 	protected:
 		void accept() 
 		{
-			//Create new socket for this connection
-			//Shared_ptr is used to pass temporary objects to the asynchronous functions
+			// Cria novo socket para a nova conexão
+			// Shared_ptr é usado para passar objetos temporários para as funções 
+			// assíncronas
 			std::shared_ptr<HTTP> socket(new HTTP(*io_service));
 
 			acceptor->async_accept(*socket, [this, socket](const boost::system::error_code& ec) 
 			{
-				//Immediately start accepting a new connection (if io_service hasn't been stopped)
+				// Começa a aceitar novas conexões se io_service não foi interrompida
 				if (ec != boost::asio::error::operation_aborted)
 					accept();
 
