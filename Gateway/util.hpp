@@ -1,29 +1,40 @@
+#pragma once
+
 #include <iostream>
-// Bibliotecas Boost
+
 #include <boost/regex.hpp>
+#include <boost/interprocess/ipc/message_queue.hpp>
+#include <boost/interprocess/sync/interprocess_semaphore.hpp>
 
 using namespace std;
-using namespace boost;
+using namespace boost::interprocess;
 
-bool get_args(string msg, vector<string>& values)
+struct position_t
 {
-	const char* pattern("-?[0-9]*\\.?[0-9]+");
-	/*string content("/?id=189740&timestamp=1447347829"
-	"&lat=-519.86979471&lon=-543.96226144"
-	"&speed = 0.0&bearing = 0.0"
-	"&altitude = 819.0&batt = 91.0");*/
+	int id;
+	std::time_t timestamp;
+	double latitude;
+	double longitude;
+	int speed;
+};
 
-	regex re(pattern);
-
-	boost::sregex_iterator it(msg.begin(), msg.end(), re);
-	boost::sregex_iterator end;
-
-	for (int i = 0; it != end; ++it, i++)
+struct active_users_t
+{
+	active_users_t() : num_active_users(0)
 	{
-		values.push_back(it->str());
-		cout << values[i] << endl;
+		for (unsigned i = 0; i < LIST_SIZE; ++i)
+		{
+			list[i].id = -1;
+		}
 	}
+	int num_active_users;
+	enum { LIST_SIZE = 1000000 };
+	position_t list[LIST_SIZE];
+	boost::interprocess::interprocess_mutex mutex;
+};
 
-	if (values.empty()) return false;
-	else return true;
-}
+bool get_args(string msg, vector<string>& values);
+
+struct position_t& preenche_posiont_t(vector<string> &args);
+
+void imprime_position_t(struct position_t& nova_posicao);

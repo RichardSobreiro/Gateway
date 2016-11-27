@@ -18,13 +18,7 @@
     <ClCompile Include="Gateway.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Gateway_Historiador.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="Gateway_Servidor.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="Http_Testes.cpp">
+    <ClCompile Include="util.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -32,13 +26,13 @@
     <ClInclude Include="Server_Http.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Gateway_Servidor.hpp">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Gateway_Historiador.hpp">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="util.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="fila_gateway_historiador.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="memoria_compartilhada_gateway_servidor.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

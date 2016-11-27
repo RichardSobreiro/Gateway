@@ -22,6 +22,9 @@
 
 namespace SimpleWeb 
 {
+	
+	#pragma region CLASS ServerBase
+
 	template <class socket_type>
 	class ServerBase 
 	{
@@ -141,14 +144,9 @@ namespace SimpleWeb
 		std::function<void(const std::exception&)> exception_handler;
 
 	private:
-		std::vector<std::pair<std::string, 
-					std::vector<std::pair<REGEX_NS::regex,
-					std::function<void( std::shared_ptr<typename ServerBase<socket_type>::Response>, 
-										std::shared_ptr<typename ServerBase<socket_type>::Request>)> 
-										> 
-								> 
-							> 
-						> 
+		std::vector<std::pair<std::string, std::vector<std::pair<REGEX_NS::regex,
+			std::function<void( std::shared_ptr<typename ServerBase<socket_type>::Response>, 
+			std::shared_ptr<typename ServerBase<socket_type>::Request>)>>>>> 
 					opt_resource;
 
 	public:
@@ -189,7 +187,7 @@ namespace SimpleWeb
 
 			boost::asio::ip::tcp::endpoint endpoint;
 
-			if (config.address.size()>0)
+			if (config.address.size() > 0)
 				endpoint = 
 					boost::asio::ip::tcp::endpoint(boost::asio::ip::address::from_string(config.address), 
 													config.port);
@@ -247,8 +245,8 @@ namespace SimpleWeb
 			});
 		}
 
-		/// If you have your own boost::asio::io_service, store its pointer here before running start().
-		/// You might also want to set config.num_threads to 0.
+		// Em caso de uso de uma io_service o endereço da mesma deve ser armazenado aqui
+		// antes do start() no servidor ser executado
 		std::shared_ptr<boost::asio::io_service> io_service;
 	protected:
 		std::unique_ptr<boost::asio::ip::tcp::acceptor> acceptor;
@@ -262,7 +260,8 @@ namespace SimpleWeb
 
 		virtual void accept() = 0;
 
-		std::shared_ptr<boost::asio::deadline_timer> set_timeout_on_socket(const std::shared_ptr<socket_type> &socket, long seconds) 
+		std::shared_ptr<boost::asio::deadline_timer> 
+			set_timeout_on_socket(const std::shared_ptr<socket_type> &socket, long seconds) 
 		{
 			std::shared_ptr<boost::asio::deadline_timer> timer(new boost::asio::deadline_timer(*io_service));
 			timer->expires_from_now(boost::posix_time::seconds(seconds));
@@ -296,13 +295,14 @@ namespace SimpleWeb
 
 			//Set timeout on the following boost::asio::async-read or write function
 			std::shared_ptr<boost::asio::deadline_timer> timer;
-			if (timeout_request>0)
+
+			if (timeout_request > 0)
 				timer = set_timeout_on_socket(socket, timeout_request);
 
 			boost::asio::async_read_until(*socket, request->streambuf, "\r\n\r\n",
 				[this, socket, request, timer](const boost::system::error_code& ec, size_t bytes_transferred) 
 			{
-				if (timeout_request>0)
+				if (timeout_request > 0)
 					timer->cancel();
 				if (!ec) 
 				{
@@ -428,7 +428,9 @@ namespace SimpleWeb
 					}
 				}
 			}
+
 			auto it_method = default_resource.find(request->method);
+
 			if (it_method != default_resource.end()) 
 			{
 				write_response(socket, request, it_method->second);
@@ -488,11 +490,16 @@ namespace SimpleWeb
 		}
 	};
 
+	#pragma endregion CLASS ServerBase
+
+	# pragma region CLASS Server
 	template<class socket_type>
 	class Server : public ServerBase<socket_type> {};
+	# pragma endregion CLASS Server
 
 	typedef boost::asio::ip::tcp::socket HTTP;
 
+	# pragma region CLASS Server HTTP
 	template<>
 	class Server<HTTP> : public ServerBase<HTTP> 
 	{
@@ -524,5 +531,7 @@ namespace SimpleWeb
 			});
 		}
 	};
+
+	# pragma endregion CLASS Server HTTP
 }
 #endif	/* SERVER_HTTP_HPP */

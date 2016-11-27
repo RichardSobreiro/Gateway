@@ -7,7 +7,7 @@
 #include "Gateway_Historiador.hpp"
 #include "Gateway_Servidor.hpp"
 
-void thread_procedimento_gateway_servidor()
-{
-
-}
+//void thread_procedimento_gateway_servidor()
+//{
+//
+//}

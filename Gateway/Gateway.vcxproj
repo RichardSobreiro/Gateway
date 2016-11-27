@@ -74,11 +74,11 @@
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
       <SDLCheck>true</SDLCheck>
-      <AdditionalIncludeDirectories>C:\boost\boost_1_62_0\stage\lib;C:\boost\boost_1_62_0;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>C:\boost\boost_1_62_0\lib\win32;C:\boost\boost_1_62_0;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>_MBCS;_SCL_SECURE_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ClCompile>
     <Link>
-      <AdditionalLibraryDirectories>C:\boost\boost_1_62_0\stage\lib;C:\boost\boost_1_62_0;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>C:\boost\boost_1_62_0\lib\win32;C:\boost\boost_1_62_0;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <SubSystem>Console</SubSystem>
     </Link>
   </ItemDefinitionGroup>
@@ -117,13 +117,11 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="Gateway.cpp" />
-    <ClCompile Include="Gateway_Historiador.cpp" />
-    <ClCompile Include="Gateway_Servidor.cpp" />
-    <ClCompile Include="Http_Testes.cpp" />
+    <ClCompile Include="util.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="Gateway_Historiador.hpp" />
-    <ClInclude Include="Gateway_Servidor.hpp" />
+    <ClInclude Include="fila_gateway_historiador.hpp" />
+    <ClInclude Include="memoria_compartilhada_gateway_servidor.hpp" />
     <ClInclude Include="Server_Http.hpp" />
     <ClInclude Include="util.hpp" />
   </ItemGroup>

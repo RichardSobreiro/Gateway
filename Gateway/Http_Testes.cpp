@@ -1,14 +1,14 @@
-#include "Server_Http.hpp"
-
-#define BOOST_SPIRIT_THREADSAFE
-#include <boost/property_tree/ptree.hpp>
-#include <boost/property_tree/json_parser.hpp>
-
-#include <fstream>
-#include <boost/filesystem.hpp>
-#include <vector>
-#include <algorithm>
-
+//#include "Server_Http.hpp"
+//
+//#define BOOST_SPIRIT_THREADSAFE
+//#include <boost/property_tree/ptree.hpp>
+//#include <boost/property_tree/json_parser.hpp>
+//
+//#include <fstream>
+//#include <boost/filesystem.hpp>
+//#include <vector>
+//#include <algorithm>
+//
 //using namespace std;
 //
 //typedef SimpleWeb::Server<SimpleWeb::HTTP> HttpServer;
@@ -27,13 +27,6 @@
 //	{
 //		try 
 //		{ 
-//			auto ifs = make_shared<ifstream>();
-//
-//			ifs->seekg(0, ios::end);
-//			auto length = ifs->tellg();
-//
-//			ifs->seekg(0, ios::beg);
-//
 //			// Recupera a string enviada pelo aplicatico TRACCAR
 //			//auto content = request->content.string();
 //			stringstream ss;
@@ -42,8 +35,7 @@
 //
 //			cout << content << endl;
 //
-//			*response << "HTTP/1.1 200 OK\r\nContent-Length: " << length << "\r\n\r\n";
-//			
+//			*response << "HTTP/1.1 200 OK\r\nContent-Length: " << content.length() << "\r\n\r\n";
 //		}
 //		catch (const exception &e) 
 //		{
@@ -53,12 +45,8 @@
 //
 //	thread server_thread([&server]() 
 //	{
-//		//Start server
 //		server.start();
 //	});
-//
-//	//Wait for server to start so that the client can connect
-//	//this_thread::sleep_for(chrono::seconds(1));
 //	
 //	server_thread.join();
 //
