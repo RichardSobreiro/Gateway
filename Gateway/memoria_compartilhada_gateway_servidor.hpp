@@ -1,100 +1,79 @@
 #pragma once
 
 #include <iostream>
-#include <Windows.h>
-#include <chrono>
+#include <list>
 // Bibliotecas Boost
 #include <boost/interprocess/ipc/message_queue.hpp>
-#include <boost/interprocess/sync/interprocess_semaphore.hpp>
+#include <boost/interprocess/shared_memory_object.hpp>
 #include <boost/thread.hpp>
 // Bibliotecas do projeto
 #include "util.hpp"
 
-
-class memoria_compartilhada_gateway_servidor
+class Memoria_Compartilhada_Gateway_Servidor
 {
-	string nome = "MC_S_Gateway_Historiador";
-	boost::scoped_ptr<shared_memory_object> shm;
 public:
-	memoria_compartilhada_gateway_servidor()
+
+	string nome = "memoria_compartilhada_gateway_servidor";
+	boost::scoped_ptr<shared_memory_object> shm;
+	boost::scoped_ptr<mapped_region> region;
+	void *addr;
+	struct active_users_t *usuarios_ativos;
+
+	Memoria_Compartilhada_Gateway_Servidor()
 	{
-		struct shm_remove
-		{
-			shm_remove() { shared_memory_object::remove("MC_S_Gateway_Historiador"); }
-			~shm_remove() { shared_memory_object::remove("MC_S_Gateway_Historiador"); }
-		} remover;
-
-		shm.reset( new shared_memory_object( open_only, "MC_S_Gateway_Historiador", read_write));
-
-		// Atribui o tamanho da região de memória compartilhada
-		(*shm).truncate(sizeof(shared_memory_buffer));
+		shm.reset(new shared_memory_object(open_only, nome.c_str(), read_write));
 
 		// Mapeia a região de memória compartilhada nesse processo
-		mapped_region region((*shm), read_write);
+		region.reset(new mapped_region((*shm), read_write));
+
+		addr = (*region).get_address();
+
+		usuarios_ativos = static_cast<struct active_users_t*>(addr);
+
 	}
-	~memoria_compartilhada_gateway_servidor() {}
+	~Memoria_Compartilhada_Gateway_Servidor() {}
+
+	void atualiza_posicao(struct position_t& nova_posicao)
+	{
+		usuarios_ativos->mutex.lock();
+
+		if(usuarios_ativos->list[nova_posicao.id].id == -1) usuarios_ativos->num_active_users++;
+
+		usuarios_ativos->list[nova_posicao.id].id = nova_posicao.id;
+		usuarios_ativos->list[nova_posicao.id].timestamp = nova_posicao.timestamp;
+		usuarios_ativos->list[nova_posicao.id].longitude = nova_posicao.latitude;
+		usuarios_ativos->list[nova_posicao.id].latitude = nova_posicao.longitude;
+		usuarios_ativos->list[nova_posicao.id].speed = nova_posicao.speed;
+
+		usuarios_ativos->mutex.unlock();
+	}
+
+	void desconecta_usuario(int id)
+	{
+		struct active_users_t *usuarios_ativos = static_cast<struct active_users_t *>((*region).get_address());
+
+		usuarios_ativos->mutex.lock();
+
+		usuarios_ativos->list[id].id = -1;
+
+		usuarios_ativos->num_active_users--;
+
+		usuarios_ativos->mutex.unlock();
+	}
 };
 
-shared_memory_buffer* Gateway_Historiador_Comunicacao::criar_semaforo()
+void thread_procedimento_gateway_historiador(struct position_t nova_posicao , bool status)
 {
-	// Remove a região de memória compartilhada para controle de acesso a 
-	// fila de mensagens entre o Gateway e o Historiador
-	struct shm_remove
+	Memoria_Compartilhada_Gateway_Servidor mc;
+	//struct position_t *nova_posicao = static_cast<struct position_t *>(p);
+
+	if (!status)
 	{
-		shm_remove() { shared_memory_object::remove("MC_S_Gateway_Historiador"); }
-		~shm_remove() { shared_memory_object::remove("MC_S_Gateway_Historiador"); }
-	} remover;
-
-	// Cria a região de memória compartilhada entre o Gateway e o Historiador
-	// para emular semáforo de controle de acesso a lista
-	shared_memory_object shm
-	(
-		create_only,					// Cria a região
-		"MC_S_Gateway_Historiador",		// Nome da região
-		read_write			       		// Permissão de leitura e escrita
-	);
-
-	// Atribui o tamanho da região de memória compartilhada
-	shm.truncate(sizeof(shared_memory_buffer));
-
-	// Mapeia a região de memória compartilhada nesse processo
-	mapped_region region
-	(shm
-		, read_write
-	);
-
-	// Cria ponteiro com o endereço da região da região
-	void * addr = region.get_address();
-
-	// Constrói a região de memória compartilhada 
-	shared_memory_buffer * data = new (addr) shared_memory_buffer;
-
-	return data;
-}
-
-void thread_procedimento_gateway_historiador()
-{
-	// Abre a fila de mensagens para a comunicação entre gateway e o historiador
-	try {
-		message_queue fila_gateway_historiador
-			( 
-				open_only,					// Apenas abre a fila
-				"gateway_historiador"		// Nome da fila
-			);
-
-		while (TRUE)
-		{
-			struct position_t *nova_posicao = new struct position_t();
-
-			fila_gateway_historiador.send(nova_posicao, sizeof(struct position_t), 1);
-
-			boost::this_thread::sleep_for(boost::chrono::seconds(1));
-		}
+		mc.desconecta_usuario(nova_posicao.id);
 	}
-	catch (interprocess_exception &ex) {
-		message_queue::remove("message_queue");
-		cout << ex.what() << endl;
-		return;
+	else
+	{
+		mc.atualiza_posicao(nova_posicao);
 	}
-	message_queue::remove("message_queue");
+
 }

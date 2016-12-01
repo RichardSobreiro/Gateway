@@ -12,16 +12,16 @@ using namespace std;
 using namespace boost::interprocess;
 
 
-class fila_gateway_historiador
+class Fila_Gateway_Historiador
 {
 	string nome = "gateway_historiador";
 	boost::scoped_ptr<message_queue> mq;
 public:
-	fila_gateway_historiador () 
+	Fila_Gateway_Historiador () 
 	{
 		mq.reset(new message_queue(open_only, nome.c_str()));
 	}
-	~fila_gateway_historiador() 
+	~Fila_Gateway_Historiador() 
 	{
 		message_queue::remove(nome.c_str());
 	}
@@ -49,8 +49,8 @@ public:
 
 	size_t read_position_t(struct position_t &item)
 	{
-		size_t msg_size;
-		unsigned int priority;
+		size_t msg_size(0);
+		unsigned int priority(1);
 
 		try
 		{ 
@@ -69,5 +69,3 @@ public:
 		}
 	}
 };
-
-	//#endif // !FILA_TEMPLATE_HPP

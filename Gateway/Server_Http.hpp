@@ -11,6 +11,9 @@
 #include <iostream>
 #include <sstream>
 
+#include "memoria_compartilhada_gateway_servidor.hpp"
+#include "fila_gateway_historiador.hpp"
+
 // Após 2017 a checagem abaixo deve ser removida (atualização do compilador)
 #ifdef USE_BOOST_REGEX
 #include <boost/regex.hpp>
@@ -22,31 +25,30 @@
 
 namespace SimpleWeb 
 {
-	
 	#pragma region CLASS ServerBase
 
 	template <class socket_type>
 	class ServerBase 
 	{
-		public:
-			virtual ~ServerBase() {}
+	public:
+		virtual ~ServerBase() {}
 
-			class Response : public std::ostream 
-			{
-				friend class ServerBase<socket_type>;
+		class Response : public std::ostream 
+		{
+			friend class ServerBase<socket_type>;
 
-				boost::asio::streambuf streambuf;
+			boost::asio::streambuf streambuf;
 
-				std::shared_ptr<socket_type> socket;
+			std::shared_ptr<socket_type> socket;
 
-				Response(const std::shared_ptr<socket_type> &socket) : std::ostream(&streambuf), socket(socket) {}
+			Response(const std::shared_ptr<socket_type> &socket) : std::ostream(&streambuf), socket(socket) {}
 
-				public:
-					size_t size() 
-					{
-						return streambuf.size();
-					}
-			};
+			public:
+				size_t size() 
+				{
+					return streambuf.size();
+				}
+		};
 
 		class Content : public std::istream 
 		{
@@ -138,7 +140,7 @@ namespace SimpleWeb
 
 		std::unordered_map<std::string,
 			std::function<void(std::shared_ptr<typename ServerBase<socket_type>::Response>, 
-								std::shared_ptr<typename ServerBase<socket_type>::Request>)> > 
+								std::shared_ptr<typename ServerBase<socket_type>::Request>)> >
 			default_resource;
 
 		std::function<void(const std::exception&)> exception_handler;
@@ -279,8 +281,6 @@ namespace SimpleWeb
 
 		void read_request_and_content(const std::shared_ptr<socket_type> &socket) 
 		{
-			//Create new streambuf (Request::streambuf) for async_read_until()
-			//shared_ptr is used to pass temporary objects to the asynchronous functions
 			std::shared_ptr<Request> request(new Request());
 			try 
 			{
@@ -293,7 +293,6 @@ namespace SimpleWeb
 					exception_handler(e);
 			}
 
-			//Set timeout on the following boost::asio::async-read or write function
 			std::shared_ptr<boost::asio::deadline_timer> timer;
 
 			if (timeout_request > 0)
@@ -306,20 +305,14 @@ namespace SimpleWeb
 					timer->cancel();
 				if (!ec) 
 				{
-					//request->streambuf.size() is not necessarily the same as bytes_transferred, from Boost-docs:
-					//"After a successful async_read_until operation, the streambuf may contain additional data beyond the delimiter"
-					//The chosen solution is to extract lines from the stream directly when parsing the header. What is left of the
-					//streambuf (maybe some bytes of the content) is appended to in the async_read-function below (for retrieving content).
 					size_t num_additional_bytes = request->streambuf.size() - bytes_transferred;
 
 					if (!parse_request(request, request->content))
 						return;
 
-					//If content, read that as well
 					auto it = request->header.find("Content-Length");
 					if (it != request->header.end()) 
 					{
-						//Set timeout on the following boost::asio::async-read or write function
 						std::shared_ptr<boost::asio::deadline_timer> timer;
 						if (timeout_content>0)
 							timer = set_timeout_on_socket(socket, timeout_content);
@@ -358,6 +351,10 @@ namespace SimpleWeb
 					{
 						find_resource(socket, request);
 					}
+				}
+				else
+				{
+
 				}
 			});
 		}
@@ -497,15 +494,28 @@ namespace SimpleWeb
 	class Server : public ServerBase<socket_type> {};
 	# pragma endregion CLASS Server
 
+	# pragma region CLASS Server HTTP
 	typedef boost::asio::ip::tcp::socket HTTP;
 
-	# pragma region CLASS Server HTTP
 	template<>
 	class Server<HTTP> : public ServerBase<HTTP> 
 	{
 	public:
-		Server(unsigned short port, size_t num_threads = 1, long timeout_request = 5, long timeout_content = 300) :
-			ServerBase<HTTP>::ServerBase(port, num_threads, timeout_request, timeout_content) {}
+
+		Memoria_Compartilhada_Gateway_Servidor memoria_compartilhada_gateway_servidor;
+		Fila_Gateway_Historiador fila_gateway_historiador;
+
+		Server( unsigned short port, 
+				size_t num_threads = 1, 
+				long timeout_request = 5, 
+				long timeout_content = 300
+		) : ServerBase<HTTP>::ServerBase (
+				port, 
+				num_threads, 
+				timeout_request, 
+				timeout_content
+			) {}
+
 
 	protected:
 		void accept() 

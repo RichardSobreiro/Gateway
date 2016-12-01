@@ -40,7 +40,7 @@ void imprime_position_t(struct position_t& nova_posicao)
 	cout << "---------------------------------" << endl;
 }
 
-struct position_t& preenche_posiont_t(vector<string> &args)
+struct position_t* preenche_position_t(vector<string> &args)
 {
 	std::string::size_type sz;
 
@@ -52,5 +52,5 @@ struct position_t& preenche_posiont_t(vector<string> &args)
 	nova_posicao->latitude = stod(args[3], &sz);
 	nova_posicao->speed = atoi(args[4].c_str());
 
-	return (*nova_posicao);
+	return nova_posicao;
 }

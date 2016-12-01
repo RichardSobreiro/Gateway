@@ -35,6 +35,6 @@ struct active_users_t
 
 bool get_args(string msg, vector<string>& values);
 
-struct position_t& preenche_posiont_t(vector<string> &args);
+struct position_t* preenche_position_t(vector<string> &args);
 
 void imprime_position_t(struct position_t& nova_posicao);
